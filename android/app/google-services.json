@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "675718048738",
+    "project_id": "tenangosflutter-6917b",
+    "storage_bucket": "tenangosflutter-6917b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675718048738:android:c28a2a23a66027b83567bb",
+        "android_client_info": {
+          "package_name": "com.example.tenangos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "675718048738-5l4fb0f9s02btgths1k1h5mdm98dm4f7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tenangos",
+            "certificate_hash": "acdd6918085c498830690f6977ee930410aa385c"
+          }
+        },
+        {
+          "client_id": "675718048738-ook407b7d50s4b4ma5lv0au8r0kpku4o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxhgjcwcmhtbkYmmZTpQX3OUAPL6JizGg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "675718048738-ook407b7d50s4b4ma5lv0au8r0kpku4o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
