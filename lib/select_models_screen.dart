@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'order_details_screen.dart';  // Nueva pantalla para detalles de pedido
+import 'order_details_screen.dart'; // Pantalla donde asignas modelos a áreas
 
 class SelectModelsScreen extends StatefulWidget {
   @override
@@ -7,8 +7,10 @@ class SelectModelsScreen extends StatefulWidget {
 }
 
 class _SelectModelsScreenState extends State<SelectModelsScreen> {
+  // Estado para saber qué modelos están seleccionados
   List<bool> selectedModels = List.generate(10, (_) => false);
 
+  // Maneja la selección y deselección de modelos con límite a 3
   void _onModelToggle(int index, bool? value) {
     int selectedCount = selectedModels.where((e) => e).length;
 
@@ -16,6 +18,7 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Solo puedes seleccionar hasta 3 modelos."),
+          duration: Duration(seconds: 2),
         ),
       );
       return;
@@ -26,6 +29,7 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
     });
   }
 
+  // Muestra detalle de modelo en un diálogo
   void _showModelDetails(int index) {
     showDialog(
       context: context,
@@ -36,7 +40,9 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Image.asset(
                 'assets/m${index + 1}.jpeg',
                 fit: BoxFit.cover,
@@ -46,9 +52,18 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  Text('Modelo ${index + 1}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Modelo ${index + 1}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  const Text('\$250', style: TextStyle(fontSize: 16, color: Colors.black87)),
+                  const Text(
+                    '\$250',
+                    style: TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
                 ],
               ),
             ),
@@ -70,7 +85,7 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Elije tu diseño (Máximo 3)'),
+        title: const Text('Elige tu diseño (Máximo 3)'),
         backgroundColor: const Color(0xFF8C4C2F),
       ),
       backgroundColor: const Color(0xFFF3E9DC),
@@ -91,12 +106,16 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
                   onTap: () => _showModelDetails(index),
                   child: Card(
                     elevation: 4,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Column(
                       children: [
                         Expanded(
                           child: ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12),
+                            ),
                             child: Image.asset(
                               'assets/m${index + 1}.jpeg',
                               fit: BoxFit.cover,
@@ -113,10 +132,7 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
                         ),
                         const Text(
                           '\$250',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 14,
-                          ),
+                          style: TextStyle(color: Colors.black87, fontSize: 14),
                         ),
                         Checkbox(
                           value: selectedModels[index],
@@ -141,15 +157,22 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => OrderDetailsScreen(selectedModels: selectedIndexes),
+                          builder: (context) => OrderDetailsScreen(
+                            selectedModels: selectedIndexes,
+                          ),
                         ),
                       );
                     }
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD1495B),
+                backgroundColor: isButtonEnabled
+                    ? const Color(0xFFD1495B)
+                    : Colors.grey,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),

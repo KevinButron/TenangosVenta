@@ -4,7 +4,11 @@ class SelectAreasScreen extends StatefulWidget {
   final List<int> selectedModels;
   final String selectedType; // Playera o Pantalón
 
-  SelectAreasScreen({required this.selectedModels, required this.selectedType});
+  const SelectAreasScreen({
+    Key? key,
+    required this.selectedModels,
+    required this.selectedType,
+  }) : super(key: key);
 
   @override
   _SelectAreasScreenState createState() => _SelectAreasScreenState();
@@ -12,12 +16,14 @@ class SelectAreasScreen extends StatefulWidget {
 
 class _SelectAreasScreenState extends State<SelectAreasScreen> {
   final List<int> availableAreas = List.generate(6, (index) => index + 1);
-  List<int> selectedAreas = [];
+
+  // Mapa de área -> modelo asignado
+  Map<int, int> selectedAreaModels = {};
 
   void _onAreaToggle(int area, bool? value) {
     setState(() {
       if (value == true) {
-        if (selectedAreas.length >= 3) {
+        if (selectedAreaModels.length >= 3) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Solo puedes seleccionar un máximo de 3 áreas'),
@@ -26,10 +32,19 @@ class _SelectAreasScreenState extends State<SelectAreasScreen> {
           );
           return;
         }
-        if (!selectedAreas.contains(area)) selectedAreas.add(area);
+        if (!selectedAreaModels.containsKey(area)) {
+          selectedAreaModels[area] = widget.selectedModels.first;
+        }
       } else {
-        selectedAreas.remove(area);
+        selectedAreaModels.remove(area);
       }
+    });
+  }
+
+  void _onModelSelectedForArea(int area, int? model) {
+    if (model == null) return;
+    setState(() {
+      selectedAreaModels[area] = model;
     });
   }
 
@@ -48,12 +63,9 @@ class _SelectAreasScreenState extends State<SelectAreasScreen> {
             if (widget.selectedType.toLowerCase() == 'playera') ...[
               Expanded(
                 flex: 3,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Image.asset('assets/Playerafrente.png', fit: BoxFit.contain),
-                    )
-                  ],
+                child: Image.asset(
+                  'assets/Playerafrente.png',
+                  fit: BoxFit.contain,
                 ),
               ),
             ] else
@@ -67,7 +79,6 @@ class _SelectAreasScreenState extends State<SelectAreasScreen> {
                 ),
               ),
             const SizedBox(height: 20),
-
             // Miniaturas modelos seleccionados
             SizedBox(
               height: 90,
@@ -95,18 +106,50 @@ class _SelectAreasScreenState extends State<SelectAreasScreen> {
                 },
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Lista de áreas con Checkbox
+            // Lista de áreas con checkbox y dropdown para asignar modelo
             Expanded(
-              flex: 2,
+              flex: 3,
               child: ListView(
                 children: availableAreas.map((area) {
-                  return CheckboxListTile(
-                    title: Text('Área $area'),
-                    value: selectedAreas.contains(area),
-                    onChanged: (value) => _onAreaToggle(area, value),
+                  bool isSelected = selectedAreaModels.containsKey(area);
+                  int? modeloAsignado = selectedAreaModels[area];
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CheckboxListTile(
+                        title: Text('Área $area'),
+                        value: isSelected,
+                        onChanged: (value) => _onAreaToggle(area, value),
+                      ),
+                      if (isSelected)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 40, bottom: 12),
+                          child: DropdownButton<int>(
+                            value: modeloAsignado,
+                            onChanged: (model) =>
+                                _onModelSelectedForArea(area, model),
+                            items: widget.selectedModels.map((modelNum) {
+                              return DropdownMenuItem<int>(
+                                value: modelNum,
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      'assets/m$modelNum.jpeg',
+                                      width: 40,
+                                      height: 40,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text('Modelo $modelNum'),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                    ],
                   );
                 }).toList(),
               ),
