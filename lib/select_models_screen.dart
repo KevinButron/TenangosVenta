@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'order_details_screen.dart'; // Pantalla donde asignas modelos a áreas
+import 'package:cloud_firestore/cloud_firestore.dart'; // <-- Firebase Firestore
+import 'package:firebase_core/firebase_core.dart'; // <-- Firebase Core
 
 class SelectModelsScreen extends StatefulWidget {
   @override
@@ -7,10 +9,36 @@ class SelectModelsScreen extends StatefulWidget {
 }
 
 class _SelectModelsScreenState extends State<SelectModelsScreen> {
-  // Estado para saber qué modelos están seleccionados
   List<bool> selectedModels = List.generate(10, (_) => false);
 
-  // Maneja la selección y deselección de modelos con límite a 3
+  @override
+  void initState() {
+    super.initState();
+    _initializeFirebase();
+  }
+
+  Future<void> _initializeFirebase() async {
+    await Firebase.initializeApp();
+  }
+
+  // Función para actualizar Firebase
+  Future<void> _updateSelectedModelsInFirebase() async {
+    String userId = "usuario123"; // <-- Reemplaza con tu UID real
+    List<int> selectedIndexes = [];
+    for (int i = 0; i < selectedModels.length; i++) {
+      if (selectedModels[i]) selectedIndexes.add(i + 1);
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .set({'selectedModels': selectedIndexes}, SetOptions(merge: true));
+    } catch (e) {
+      print("Error al actualizar modelos en Firebase: $e");
+    }
+  }
+
   void _onModelToggle(int index, bool? value) {
     int selectedCount = selectedModels.where((e) => e).length;
 
@@ -27,9 +55,11 @@ class _SelectModelsScreenState extends State<SelectModelsScreen> {
     setState(() {
       selectedModels[index] = value ?? false;
     });
+
+    // <-- Actualizamos Firebase cada vez que se cambia un checkbox
+    _updateSelectedModelsInFirebase();
   }
 
-  // Muestra detalle de modelo en un diálogo
   void _showModelDetails(int index) {
     showDialog(
       context: context,

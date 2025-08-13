@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
+import 'admin_pedidos.dart';
 
 class LoginScreen extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -25,16 +26,29 @@ class LoginScreen extends StatelessWidget {
       );
 
       final String? name = userCredential.user?.displayName;
+      final String? email = userCredential.user?.email;
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('username', name ?? "Usuario");
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(name: name ?? "Usuario"),
-        ),
-      );
+      // Redirección según correo
+      if (email != null && email.toLowerCase() == "gayossomariluz@gmail.com") {
+        // Accede al panel de administrador
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminPedidosPage(),
+          ),
+        );
+      } else {
+        // Accede a la pantalla normal de usuario
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(name: name ?? "Usuario"),
+          ),
+        );
+      }
     } catch (e) {
       print("Error en login: $e");
     }
@@ -50,7 +64,6 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icono decorativo estilo Tenangos
               Icon(Icons.local_florist, color: Colors.brown[700], size: 90),
               const SizedBox(height: 16),
               Text(
@@ -58,11 +71,10 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: Colors.brown[800], // Café
+                  color: Colors.brown[800],
                 ),
               ),
               const SizedBox(height: 30),
-
               Text(
                 'Bienvenido',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
@@ -74,8 +86,6 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
               const SizedBox(height: 40),
-
-              // Botón estilo Google con imagen original
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -92,7 +102,7 @@ class LoginScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'assets/google_icon.png', // icono que ya tenías
+                        'assets/google_icon.png',
                         height: 24,
                       ),
                       const SizedBox(width: 12),

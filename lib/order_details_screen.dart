@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'select_areas_screen.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final List<int> selectedModels;
 
-  OrderDetailsScreen({required this.selectedModels});
+  const OrderDetailsScreen({Key? key, required this.selectedModels}) : super(key: key);
 
   @override
   _OrderDetailsScreenState createState() => _OrderDetailsScreenState();
@@ -16,6 +18,29 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   final List<String> types = ['Playera', 'Pantalón'];
   final List<String> sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  /// Inicializa Firebase si aún no se ha hecho
+  @override
+  void initState() {
+    super.initState();
+    _initializeFirebase();
+  }
+
+  Future<void> _initializeFirebase() async {
+    await Firebase.initializeApp();
+  }
+
+  /// Guarda el pedido en Firebase Firestore
+  Future<void> saveOrder() async {
+    if (selectedType != null && selectedSize != null) {
+      await FirebaseFirestore.instance.collection('orders').add({
+        'models': widget.selectedModels,
+        'type': selectedType,
+        'size': selectedSize,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +78,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Modelos seleccionados:',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF3B2F2F),
@@ -78,9 +103,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   .toList(),
             ),
             const SizedBox(height: 28),
-            Text(
+            const Text(
               'Tipo:',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF5B8E7D),
@@ -101,17 +126,16 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 onChanged: (value) {
                   setState(() {
                     selectedType = value;
-                    // Al cambiar tipo, reseteamos talla para que se seleccione de nuevo si se quiere
-                    selectedSize = null;
+                    selectedSize = null; // Reset talla al cambiar tipo
                   });
                 },
               );
             }).toList(),
             if (typeImage != null) typeImage,
             const SizedBox(height: 12),
-            Text(
+            const Text(
               'Talla:',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF5B8E7D),
@@ -123,7 +147,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFD1495B), width: 2),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 4,
@@ -139,11 +163,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 items: sizes
                     .map(
                       (size) => DropdownMenuItem(
+                        value: size,
                         child: Text(
                           size,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        value: size,
                       ),
                     )
                     .toList(),
@@ -160,13 +184,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: (selectedType != null && selectedSize != null)
-                      ? () {
+                      ? () async {
+                          await saveOrder(); // Guardar en Firebase
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => SelectAreasScreen(
-                                selectedModels: widget.selectedModels,
-                                selectedType: selectedType!,
+                                selectedType: selectedType ?? '',
+                                selectedSize: selectedSize ?? '',         // <-- obligatorio
+                                selectedModels: widget.selectedModels,  // <-- tu lista de modelos// seguro
                               ),
                             ),
                           );
